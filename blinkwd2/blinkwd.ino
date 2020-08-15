@@ -1,20 +1,25 @@
 class Button {
     int btnPin;      // the number of the LED pin
     long OnTime;     // milliseconds of on-time
+    long IncrTime;
      
     // These maintain the current state
     int btnState;             		// btnState used to set the LED
+    int btnLevel;             		// btnLevel 0-255
     unsigned long previousMillis;  	// will store last time LED was updated
+    unsigned long previousMillisLevel;  	// will store last time LED was updated
      
   // Constructor - creates a Flasher 
   // and initializes the member variables and state
   public:
-  Button(int pin, long on) {
+  Button(int pin, long on, long incr = 10) {
     btnPin = pin;
     pinMode(btnPin, INPUT_PULLUP);     
     	  
     OnTime = on;
+    IncrTime = incr;
     btnState = LOW; 
+    btnLevel = 0; 
     previousMillis = 0;
   }
      
@@ -26,14 +31,26 @@ class Button {
         previousMillis = currentMillis;  // Remember the time
     } 
          
-    if((btnState == HIGH) && (currentMillis - previousMillis >= OnTime)) {
+    if(btnState == HIGH && (currentMillis - previousMillis) >= OnTime) {
         btnState = LOW; 
         previousMillis = currentMillis;  // Remember the time
     } 
+
+    if(btnState == HIGH && (currentMillis - previousMillisLevel) >= IncrTime && btnLevel < 255) {
+        btnLevel += 1;
+        previousMillisLevel = currentMillis;  // Remember the time
+    }
+    if(btnState == LOW && (currentMillis - previousMillisLevel) >= IncrTime && btnLevel > 0) {
+        btnLevel -= 1;
+        previousMillisLevel = currentMillis;  // Remember the time
+    }
   }
 
   int getState() {
     return btnState;
+  }
+  int getLevel() {
+    return btnLevel;
   }
 };
 
@@ -84,12 +101,12 @@ Flasher led1(13, 350, 350);
 Button btn1(10, 2000);
      
 void setup() {
-    pinMode(12, OUTPUT);     
+    pinMode(5, OUTPUT);     
 }
      
 void loop() {
     led1.Update();
-    digitalWrite(12, btn1.getState());
+    analogWrite(5, btn1.getLevel());
 //    led2.Update();
     btn1.Update();
 }
