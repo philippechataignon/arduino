@@ -15,6 +15,7 @@ void loop() {
         delay(50);
     Serial.println("on");
     digitalWrite(LEDPIN, HIGH);
+    delay(2000);
     while (digitalRead(BUTPIN) == LOW)
         delay(50);
     Serial.println("off");
