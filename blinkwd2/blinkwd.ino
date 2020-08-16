@@ -99,14 +99,22 @@ class Flasher {
 Flasher led1(13, 350, 350);
 // Flasher led2(12, 100, 400);
 Button btn1(10, 2000);
+Button btn2(10, 1000);
+Button btn3(10, 3000);
      
 void setup() {
+    pinMode(3, OUTPUT);     
     pinMode(5, OUTPUT);     
+    pinMode(6, OUTPUT);     
 }
      
 void loop() {
     led1.Update();
-    analogWrite(5, btn1.getLevel());
+    analogWrite(3, btn1.getLevel());
+    analogWrite(5, btn2.getLevel());
+    analogWrite(6, btn3.getLevel());
 //    led2.Update();
     btn1.Update();
+    btn2.Update();
+    btn3.Update();
 }
