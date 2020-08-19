@@ -1,17 +1,17 @@
 /*-- pin out du 74HC595
          1___o___16    
-PO-Q1 <-  |     | <- Vcc (+5v)
-PO-Q2 <-  |  C  | -> PO-Q0
-PO-Q3 <-  |  D  | <- DS entrée série -> PIN 11
-PO-Q4 <-  |  4  | <- OE Output Enable (active LOW) maintenir à GND
-PO-Q5 <-  |  0  | <- ST-CP verrouillage des sorties -> PIN 12
-PO-Q6 <-  |  2  | <- SH-CP entrée de l'horloge de décalage -> PIN 13
-PO-Q7 <-  |  1  | <- MR Master Reset (active LOW) maintenir à +Vcc
-  GND ->  |_____| -> Q7'
+   Q1 <-  |     | <- Vcc (+5v)
+   Q2 <-  |  C  | -> Q0
+   Q3 <-  |  D  | <- DS entrée série -> PIN 11
+   Q4 <-  |  4  | <- OE Output Enable (active LOW) maintenir à GND
+   Q5 <-  |  0  | <- RCLK  = LOCK    -> PIN 12
+   Q6 <-  |  2  | <- SRCLK = CLOCK   -> PIN 13
+   Q7 <-  |  1  | <- MR Master Reset (active LOW) maintenir à +Vcc
+  GND ->  |_____| -> Q7' -> DS si plusieurs 74HC595 (*RCLK à connecter)
          8       9
-PO-Q0 à Q7 sont les sorties parallèles
-Q7' est l'équivalent de Q7 pour connecter à un autre registre
-DS est l'entrée série 
+Q0 à Q7 sont les sorties; DS est l'entrée série 
+RCLK (Register Clock): doit être mis en High pour valider les nouveaux shifts register.
+SRCLK (Serial Clock): déplace le registre lorsqu’il est mis à 1 (High).
 */
 
 //Broche connectée au ST_CP du 74HC595
@@ -21,20 +21,24 @@ DS est l'entrée série
 //Broche connectée au DS du 74HC595
 #define DATA 11
 
+//How many shift registers
+#define NUM_SR 1
+#define NUM_REG 8 * NUM_SR
+
+
 // cette fonction permet de "pousser" un octet dans le registre à décalage
 // la fonction met un front bas sur l'horloge, présente la valeur au registre
 // (soit la valeur du bit de l'octet que la fonction est en train de lire
 // puis met un front haut pour valider la valeur
-void send_byte(byte donnee)
+void send_value(boolean boolarray[])
 {
     //On active le verrou le temps de transférer les données
     digitalWrite(LOCK, LOW);
-    // Serial.println(donnee);
-    for (byte i = 0; i < 8; i++) {
+    for (byte i = 0; i < NUM_REG; i++) {
         //on met l'horloge à l'état bas
         digitalWrite(CLOCK, LOW);
-        //on met le bit courant en place
-        digitalWrite(DATA, donnee & (1u << i));
+        //on met le bit en place
+        digitalWrite(DATA, boolarray[i]);
         //enfin on remet l'horloge à l'état haut pour faire prendre en compte cette dernière
         digitalWrite(CLOCK, HIGH);
     }
@@ -48,28 +52,41 @@ void setup()
     pinMode(LOCK, OUTPUT);
     pinMode(CLOCK, OUTPUT);
     pinMode(DATA, OUTPUT);
-    // Serial.begin(9600);
 }
 
 void loop()
 {
+    boolean val[NUM_REG] = {0};
     int d = 100;
-    byte val = 0;
-    for (byte i = 0; i < 8; i++) {
-        val = 1u << i;
-        send_byte(val);
+    int i = 0;
+    for (i = 0; i < 8; i++) {
+        val[i] = 1;
+        send_value(val);
+        val[i] = 0;
         delay(d);
     }
-    for (byte i = 6; i != 255; i--) {
+    for (i = 6; i >= 0; i--) {
+        val[i] = 1;
+        send_value(val);
+        val[i] = 0;
+        delay(d);
+    }
+    for (i = 0; i < 8; i++) {
+        val[i] = 1;
+        send_value(val);
+        val[i] = 0;
+        delay(d);
+    }
+    for (i = 6; i >= 0; i--) {
         //met bit i à 1
-        val |= (1u << i);
-        send_byte(val);
+        val[i] = 1;
+        send_value(val);
         delay(d);
     }
-    for (byte i = 7; i != 255; i--) {
+    for (i = 7; i > 0; i--) {
         //met bit i à 0
-        val &= (~(1u << i));
-        send_byte(val);
+        val[i] = 0;
+        send_value(val);
         delay(d);
     }
 }
