@@ -29,7 +29,7 @@ void send_byte(byte donnee)
 {
     //On active le verrou le temps de transférer les données
     digitalWrite(LOCK, LOW);
-    Serial.println(donnee);
+    // Serial.println(donnee);
     for (byte i = 0; i < 8; i++) {
         //on met l'horloge à l'état bas
         digitalWrite(CLOCK, LOW);
@@ -48,36 +48,28 @@ void setup()
     pinMode(LOCK, OUTPUT);
     pinMode(CLOCK, OUTPUT);
     pinMode(DATA, OUTPUT);
-    Serial.begin(9600);
+    // Serial.begin(9600);
 }
 
 void loop()
 {
+    int d = 100;
     byte val = 0;
-    for (int i = 0; i < 8; i++) {
+    for (byte i = 0; i < 8; i++) {
         val = 1u << i;
         send_byte(val);
-        delay(250);
+        delay(d);
     }
-    for (int i = 6; i >= 0; i--) {
-        Serial.print(">i:");
-        Serial.println(i);
+    for (byte i = 6; i != 255; i--) {
         //met bit i à 1
         val |= (1u << i);
         send_byte(val);
-        delay(250);
+        delay(d);
     }
-    for (int i = 0; i < 7; i++) {
-        Serial.print(">i:");
-        Serial.println(i);
+    for (byte i = 7; i != 255; i--) {
         //met bit i à 0
         val &= (~(1u << i));
         send_byte(val);
-        delay(250);
-    }
-    for (int i = 7; i > 0; i--) {
-        val = 1u << i;
-        send_byte(val);
-        delay(250);
+        delay(d);
     }
 }
