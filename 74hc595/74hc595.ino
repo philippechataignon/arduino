@@ -25,21 +25,21 @@ DS est l'entrée série
 // la fonction met un front bas sur l'horloge, présente la valeur au registre
 // (soit la valeur du bit de l'octet que la fonction est en train de lire
 // puis met un front haut pour valider la valeur
-void envoi_ordre(int dataPin, int clockPin, boolean sens, char donnee)
+void send_byte(byte donnee)
 {
-    //on va parcourir chaque bit de l'octet
-    for (int i = 0; i < 8; i++) {
+    //On active le verrou le temps de transférer les données
+    digitalWrite(LOCK, LOW);
+    Serial.println(donnee);
+    for (byte i = 0; i < 8; i++) {
         //on met l'horloge à l'état bas
-        digitalWrite(clockPin, LOW);
-        //on met le bit de donnée courante en place
-        if (sens) {
-            digitalWrite(dataPin, donnee & 0x01 << i);
-        } else {
-            digitalWrite(dataPin, donnee & 0x80 >> i);
-        }
+        digitalWrite(CLOCK, LOW);
+        //on met le bit courant en place
+        digitalWrite(DATA, donnee & (1u << i));
         //enfin on remet l'horloge à l'état haut pour faire prendre en compte cette dernière
-        digitalWrite(clockPin, HIGH);
+        digitalWrite(CLOCK, HIGH);
     }
+    //et enfin on relâche le verrou
+    digitalWrite(LOCK, HIGH);
 }
 
 void setup()
@@ -53,28 +53,31 @@ void setup()
 
 void loop()
 {
-    // un chenillard, c'est une led allumée à la fois et qui se déplace
-    // il faut allumer la première, puis l'éteindre puis la deuxième etc.
-    // l'octet représentent les 8 leds, il faut donc avoir 
-    // 0000 0001
-    // 0000 0010
-    // 0000 0100 et ainsi de suite
-    // on remarque que les valeurs décimales de l'octet sont 1 puis 2 puis 4
-    // pratique, il suffit de faire x2 pour décaler vers la gauche
-
-    // départ i=1 pour la première led et x 2 à chaque boucle
-    // lorsque i aura atteint 128, le dernier x2 donnera 256 soit 1 0000 0000
-    // on voit que le 1 ne fait plus parti de l'octet donc i = 0, d'ou la condition de sortie
-    // et ensuite on reprend
-    for (unsigned char i = 1; i > 0; i = i * 2) {
+    byte val = 0;
+    for (int i = 0; i < 8; i++) {
+        val = 1u << i;
+        send_byte(val);
+        delay(250);
+    }
+    for (int i = 6; i >= 0; i--) {
+        Serial.print(">i:");
         Serial.println(i);
-        //On active le verrou le temps de transférer les données
-        digitalWrite(LOCK, LOW);
-        //on envoi toutes les données grâce à notre belle fonction
-        envoi_ordre(DATA, CLOCK, 1, i);
-        //et enfin on relâche le verrou
-        digitalWrite(LOCK, HIGH);
-        //une petite pause pour constater l'affichage 
+        //met bit i à 1
+        val |= (1u << i);
+        send_byte(val);
+        delay(250);
+    }
+    for (int i = 0; i < 7; i++) {
+        Serial.print(">i:");
+        Serial.println(i);
+        //met bit i à 0
+        val &= (~(1u << i));
+        send_byte(val);
+        delay(250);
+    }
+    for (int i = 7; i > 0; i--) {
+        val = 1u << i;
+        send_byte(val);
         delay(250);
     }
 }
