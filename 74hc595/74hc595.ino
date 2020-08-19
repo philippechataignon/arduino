@@ -14,9 +14,9 @@ RCLK (Register Clock): doit être mis en High pour valider les nouveaux shifts r
 SRCLK (Serial Clock): déplace le registre lorsqu’il est mis à 1 (High).
 */
 
-//Broche connectée au ST_CP du 74HC595
+//Broche connectée au RCLK du 74HC595
 #define LOCK 12
-//Broche connectée au SH_CP du 74HC595
+//Broche connectée au SRCLK du 74HC595
 #define CLOCK 13
 //Broche connectée au DS du 74HC595
 #define DATA 11
@@ -25,11 +25,6 @@ SRCLK (Serial Clock): déplace le registre lorsqu’il est mis à 1 (High).
 #define NUM_SR 1
 #define NUM_REG 8 * NUM_SR
 
-
-// cette fonction permet de "pousser" un octet dans le registre à décalage
-// la fonction met un front bas sur l'horloge, présente la valeur au registre
-// (soit la valeur du bit de l'octet que la fonction est en train de lire
-// puis met un front haut pour valider la valeur
 void send_value(boolean boolarray[])
 {
     //On active le verrou le temps de transférer les données
@@ -48,7 +43,6 @@ void send_value(boolean boolarray[])
 
 void setup()
 {
-    //On met les broches en sortie
     pinMode(LOCK, OUTPUT);
     pinMode(CLOCK, OUTPUT);
     pinMode(DATA, OUTPUT);
