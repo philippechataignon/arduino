@@ -27,17 +27,17 @@ SRCLK (Serial Clock): déplace le registre lorsqu’il est mis à 1 (High).
 
 void send_value(boolean boolarray[])
 {
-    //On active le verrou le temps de transférer les données
+    // lock for data transfer
     digitalWrite(LOCK, LOW);
     for (byte i = 0; i < NUM_REG; i++) {
-        //on met l'horloge à l'état bas
+        // clock LOW
         digitalWrite(CLOCK, LOW);
-        //on met le bit en place
+        // write bit
         digitalWrite(DATA, boolarray[i]);
-        //enfin on remet l'horloge à l'état haut pour faire prendre en compte cette dernière
+        // clock HIGH for validation
         digitalWrite(CLOCK, HIGH);
     }
-    //et enfin on relâche le verrou
+    // unlock
     digitalWrite(LOCK, HIGH);
 }
 
@@ -46,6 +46,8 @@ void setup()
     pinMode(LOCK, OUTPUT);
     pinMode(CLOCK, OUTPUT);
     pinMode(DATA, OUTPUT);
+    // clear 74hc595
+    send_value(0);
 }
 
 void loop()
