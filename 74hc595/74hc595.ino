@@ -41,19 +41,20 @@ void send_value(boolean boolarray[])
     digitalWrite(LOCK, HIGH);
 }
 
+boolean val[NUM_REG] = {0};
+
 void setup()
 {
     pinMode(LOCK, OUTPUT);
     pinMode(CLOCK, OUTPUT);
     pinMode(DATA, OUTPUT);
     // clear 74hc595
-    send_value(0);
+    send_value(val);
 }
 
 void loop()
 {
-    boolean val[NUM_REG] = {0};
-    int d = 100;
+    int d = 500;
     int i = 0;
     for (i = 0; i < 8; i++) {
         val[i] = 1;
@@ -61,19 +62,19 @@ void loop()
         val[i] = 0;
         delay(d);
     }
-    for (i = 6; i >= 0; i--) {
+    for (i = 6; i > 0; i--) {
         val[i] = 1;
         send_value(val);
         val[i] = 0;
         delay(d);
     }
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 7; i++) {
         val[i] = 1;
         send_value(val);
         val[i] = 0;
         delay(d);
     }
-    for (i = 6; i >= 0; i--) {
+    for (i = 7; i >= 0; i--) {
         //met bit i à 1
         val[i] = 1;
         send_value(val);
