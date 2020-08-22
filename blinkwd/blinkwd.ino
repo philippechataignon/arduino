@@ -7,17 +7,24 @@ unsigned long previousMillis1 = 0;        // will store last time LED was update
 long OnTime1 = 250;           // milliseconds of on-time
 long OffTime1 = 750;          // milliseconds of off-time
      
-int ledPin2 =  13;      // the number of the LED pin
+int ledPin2 =  11;      // the number of the LED pin
 int ledState2 = LOW;             // ledState used to set the LED
 unsigned long previousMillis2 = 0;        // will store last time LED was updated
 long OnTime2 = 330;           // milliseconds of on-time
 long OffTime2 = 400;          // milliseconds of off-time
+     
+int ledPin3 =  10;      // the number of the LED pin0
+int ledState3 = LOW;             // ledState used to set the LED
+unsigned long previousMillis3 = 0;        // will store last time LED was updated
+long OnTime3 = 440;           // milliseconds of on-time
+long OffTime3 = 240;          // milliseconds of off-time
      
 void setup() 
 {
   // set the digital pin as output:
   pinMode(ledPin1, OUTPUT);      
   pinMode(ledPin2, OUTPUT);      
+  pinMode(ledPin3, OUTPUT);      
 }
      
 void loop()
@@ -49,5 +56,17 @@ void loop()
     ledState2 = HIGH;  // turn it on
     previousMillis2 = currentMillis;   // Remember the time
     digitalWrite(ledPin2, ledState2);	  // Update the actual LED
+  }
+  if((ledState3 == HIGH) && (currentMillis - previousMillis3 >= OnTime3))
+  {
+    ledState3 = LOW;  // Turn it off
+    previousMillis3 = currentMillis;  // Remember the time
+    digitalWrite(ledPin3, ledState3);  // Update the actual LED
+  }
+  else if ((ledState3 == LOW) && (currentMillis - previousMillis3 >= OffTime3))
+  {
+    ledState3 = HIGH;  // turn it on
+    previousMillis3 = currentMillis;   // Remember the time
+    digitalWrite(ledPin3, ledState3);	  // Update the actual LED
   }
 }
