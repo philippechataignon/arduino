@@ -1,2 +1,2 @@
-BOARD_TYPE = UNO
+BOARD_TAG = uno
 include /usr/share/arduino/Arduino.mk

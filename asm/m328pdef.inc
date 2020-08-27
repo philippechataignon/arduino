@@ -41,17 +41,11 @@
 #define _M328PDEF_INC_
 
 
-#pragma partinc 0
-
 ; ***** SPECIFY DEVICE ***************************************************
 .device ATmega328P
-#pragma AVRPART ADMIN PART_NAME ATmega328P
 .equ	SIGNATURE_000	= 0x1e
 .equ	SIGNATURE_001	= 0x95
 .equ	SIGNATURE_002	= 0x0f
-
-#pragma AVRPART CORE CORE_VERSION V2E
-
 
 ; ***** I/O REGISTER DEFINITIONS *****************************************
 ; NOTE:
@@ -921,10 +915,6 @@
 .equ	E2END	= 0x03ff
 .equ	EEPROMEND	= 0x03ff
 .equ	EEADRBITS	= 10
-#pragma AVRPART MEMORY PROG_FLASH 32768
-#pragma AVRPART MEMORY EEPROM 1024
-#pragma AVRPART MEMORY INT_SRAM SIZE 2048
-#pragma AVRPART MEMORY INT_SRAM START_ADDR 0x100
 
 
 

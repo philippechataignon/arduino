@@ -1,3 +1,6 @@
-*.o
 build-*/
+*.o
 *.zip
+*.hex
+*.obj
+*.cof

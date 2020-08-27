@@ -1,4 +1,4 @@
-#define LEDPIN 12
+#define LEDPIN 13
 
 #define PAUSEON 500
 #define PAUSEOFF 500
@@ -8,9 +8,8 @@ void setup() {
 } 
 
 void loop() { 
-    // digitalWrite(LEDPIN, digitalRead(BUTPIN));
     digitalWrite(LEDPIN, LOW);
-    delay(2500);
+    delay(PAUSEOFF);
     digitalWrite(LEDPIN, HIGH);
-    delay(500);
+    delay(PAUSEON);
 }
