@@ -1,17 +1,12 @@
-; These are all constant definitions taken from m328Pdef.inc
-; and we will go in more detail of what they are, when they
-; are used
-;.equ PORTB = 0x05
-;.equ PORTD = 0x0b
-;.equ PIND  = 0x09
-;.equ DDRB  = 0x04
-;.equ DDRD  = 0x0a
-
+.nolist
 .include "m328pdef.inc"
+.list
 
 .ORG 0x0000             ; the next instruction has to be written to
                         ; address 0x0000
     rjmp START          ; the reset vector: jump to "main"
+
+.ORG 0x0100             ; the next instruction has to be written to
 
 START:
     ldi r16, low(RAMEND)   ; set up the stack

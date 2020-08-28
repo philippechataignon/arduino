@@ -1,5 +1,5 @@
 %.hex: %.asm
-	avra -fI $<
+	avra -l $<.lst -fI $<
 	@rm -f *.eep.hex *.obj *.cof
 
 all: $(patsubst %.asm,%.hex,$(wildcard *.asm))
@@ -11,6 +11,6 @@ monitor:
 	picocom --send-cmd "ascii_xfr -s -v -l10" --nolock /dev/ttyACM0
 
 clean:
-	rm -f *.hex *.obj *.cof
+	rm -f *.hex *.obj *.cof *.lst
 
 .PHONY: all upload monitor
