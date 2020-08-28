@@ -23,7 +23,7 @@ MAIN:
     sbi DDRB, 5          ; set PB5 as output (pin 13)
     cbi PORTB, 5         ; set PB5 HIGH
     cbi DDRD, 2          ; set PD2 as input (pin 2)
-    cbi PORTD, 2         ; set PD2 (cbi=FLOAT, sbi=PULLUP)
+    sbi PORTD, 2         ; set PD2 (cbi=FLOAT, sbi=PULLUP)
     
     ldi r16, 0b01  ; enable INT0
     out EIMSK, r16
