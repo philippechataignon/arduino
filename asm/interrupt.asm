@@ -10,7 +10,6 @@
 
 .org 0x0100
    
-.def dreg = r18
 .def temp = r16
 
 MAIN:          
@@ -25,11 +24,11 @@ MAIN:
     cbi DDRD, 2          ; set PD2 as input (pin 2)
     sbi PORTD, 2         ; set PD2 (cbi=FLOAT, sbi=PULLUP)
     
-    ldi r16, 0b01  ; enable INT0
-    out EIMSK, r16
+    ldi temp, 0b01  ; enable INT0
+    out EIMSK, temp
     
-    ldi r16, 0b10  ; mode change (falling = 10, rising = 11)
-    sts EICRA, r16
+    ldi temp, 0b10  ; mode change (falling = 10, rising = 11)
+    sts EICRA, temp
     sei
        
 LOOP:          
