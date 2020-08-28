@@ -8,13 +8,22 @@
 .def temp = r16
 .def overflows = r17
 .def milliseconds = r20
+.def ndelay = r21
 
-.macro delay
+.macro sdelay
    clr overflows
    ldi milliseconds,@0
-sec_count:
+loop_sdelay:
    cpse overflows, milliseconds
-   rjmp sec_count
+   rjmp loop_sdelay
+.endmacro
+
+.macro delay
+   ldi ndelay,@0
+loop_delay:
+   sdelay 250
+   dec ndelay
+   brne loop_delay
 .endmacro
 
 .org 0x0000              ; memory (PC) location of reset handler
@@ -47,9 +56,9 @@ Reset:
 
 blink:
    sbi PORTB, 5          ; turn on LED on PB5
-   delay 250             ; delay will be 1/2 second
+   sdelay 250             ; delay will be 1/2 second
    cbi PORTB, 5          ; turn off LED on PB5
-   delay 250             ; delay will be 1/2 second
+   delay 4             ; delay will be 1/2 second
    rjmp blink            ; loop back to the start
   
 overflow_handler: 
