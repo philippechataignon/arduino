@@ -13,10 +13,10 @@ rjmp Reset               ; jmp costs 2 cpu cycles and rjmp costs only 1
                          ; so unless you need to jump more than 8k bytes
                          ; you only need rjmp. Some microcontrollers therefore only 
                          ; have rjmp and not jmp
-.org 0x0020              ; memory location of Timer0 overflow handler
+.org OVF0addr            ; memory location of Timer0 overflow handler
 rjmp overflow_handler    ; go here if a timer0 overflow interrupt occurs 
 
-.org 0x0100              ; start of program
+.org 0x0100     ; start of program
 ;============
 
 Reset: 
