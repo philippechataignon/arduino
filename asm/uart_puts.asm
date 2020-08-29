@@ -10,7 +10,7 @@
 .def ndelay = r21
 
 .equ fcpu = 16000000
-.equ bitrate = 9600
+.equ bitrate = 9600 ; OK -> 57600 ; KO 115200
 .equ prescale = (fcpu / 16 / bitrate) - 1
 
 ;;;;

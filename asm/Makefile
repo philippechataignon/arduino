@@ -5,7 +5,7 @@
 all: $(patsubst %.asm,%.hex,$(wildcard *.asm))
 
 upload: ${program}.hex
-	avrdude -c arduino -p m328p -P /dev/ttyACM0 -b 115200 -U flash:w:$<
+	avrdude -D -c arduino -p m328p -P /dev/ttyACM0 -b 115200 -U flash:w:$<
 
 com:
 	picocom /dev/ttyACM0
