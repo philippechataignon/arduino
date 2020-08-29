@@ -4,6 +4,7 @@
 .list
 
 .def temp = r16
+.def char = r19
 .def temp2 = r18
 .def overflows = r17
 .def milliseconds = r20
@@ -11,7 +12,7 @@
 
 .equ fcpu = 16000000
 .equ bitrate = 9600 ; OK -> 57600 ; KO 115200
-.equ prescale = (fcpu / 16 / bitrate) - 1
+.equ prescale = fcpu / 16 / bitrate - 1
 
 ;;;;
 .macro sdelay
@@ -48,15 +49,20 @@ overflow_handler:
    reti                  ; return from interrupt
 
 puts:
-    lpm     temp,Z+              ; load character from pmem
-    cpi     temp,$00             ; check if null
-    breq    puts_end            ; branch if null
+    lpm     char,Z+              ; load character from pmem
+    cpi     char,0               ; check if null
+    breq    puts_end             ; branch if null
 puts_wait:
-    lds     temp2,UCSR0A          ; load UCSR0A into temp2
-    sbrs    temp2,UDRE0           ; wait for empty transmit buffer
-    rjmp    puts_wait           ; repeat loop
-    sts     UDR0,temp            ; transmit character
-    rjmp    puts                ; repeat loop
+    ; UCSR = USART Control and Status Register 
+    ; UDRE = USART Data Register Empty
+    lds     temp2,UCSR0A         ; load UCSR0A into temp2
+    sbrs    temp2,UDRE0          ; wait for empty transmit buffer
+                                 ; sbrs = skip next instruction 
+                                 ; if bit UDRE0 of UCSR0A is set
+    rjmp    puts_wait            ; repeat loop
+    ; UDR = USART I/O Data Register 
+    sts     UDR0,char            ; transmit character
+    rjmp    puts                 ; repeat loop
 puts_end:
     ret    
 
@@ -71,6 +77,7 @@ START:
                         ;   this means an overflow every 1ms
 
     ; prescale from bitrate
+    ; UBRR = USART Baud Rate Registers
     ldi temp, low(prescale)
     sts UBRR0L, temp
     ldi temp, high(prescale)
@@ -94,4 +101,4 @@ loop:
     rjmp    loop 
 
 msg:    
-.db    "Hello world!",13,10,0
+.db    "Hello world!",13,10,0,0
