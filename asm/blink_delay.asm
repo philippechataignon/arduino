@@ -2,11 +2,17 @@
 .include "m328pdef.inc"
 .list
 
-.ORG 0x0000             ; the next instruction has to be written to
+.dseg
+.org	SRAM_START
+var1:	.byte	2		; allocate 2 bytes to var1
+var2:	.byte	2		; allocate 2 bytes to var2 
+
+.cseg
+.org 0x0000             ; the next instruction has to be written to
                         ; address 0x0000
     rjmp START          ; the reset vector: jump to "main"
 
-.ORG 0x0100             ; the next instruction has to be written to
+.org 0x0100             ; the next instruction has to be written to
 
 START:
     ldi r16, low(RAMEND)   ; set up the stack
