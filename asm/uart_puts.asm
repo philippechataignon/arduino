@@ -68,6 +68,11 @@ puts_end:
 
 ;;;;
 START:
+    ; put led13 off
+    ser r16                ; load register 16 with 0xFF (all bits 1)
+    out DDRB, r16          ; write the value in r16 (0xFF) to Data
+    cbi PORTB, 5           ; switch on the LED PORTB = 8 - 13
+
     ; init timer
     ldi temp,0b00000011
     out TCCR0B,temp     ; TCNT0 in FCPU/64 mode, 2500000 cnts/sec
