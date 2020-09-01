@@ -23,15 +23,15 @@ static void led_off(void)
 
 static void led_init(void)
 {
-    set_bit(DDRB, DDB5);          /* PORTB5 as output */
+    set_bit(DDRB, DDB5);        /* PORTB5 as output */
     led_off();
 }
 
 static void timer_stop(void)
 {
     TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12)); /* stop timer clock */
-    clr_bit(TIMSK1, TOIE1);      /* disable interrupt */
-    set_bit(TIFR1, TOV1);         /* clear interrupt flag */
+    clr_bit(TIMSK1, TOIE1);     /* disable interrupt */
+    set_bit(TIFR1, TOV1);       /* clear interrupt flag */
 }
 
 static void timer_init(void)
@@ -55,10 +55,8 @@ static void timer_start(unsigned long us)
     }
     TCNT1 = T1_MAX - ticks;     /* overflow in ticks*1024 clock cycles */
 
-    set_bit(TIMSK1, TOIE1);       /* enable overflow interrupt */
-    /* start timer clock */
-    TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-    TCCR1B |= _BV(CS10) | _BV(CS12);    /* prescaler: 1024 */
+    TIMSK1 = 0b00000001;       /* set the Timer Overflow Interrupt Enable bit */
+    TCCR1B = 0b00000101;       /* prescaler: 1024 */
 }
 
 static void timer_start_ms(unsigned short ms)
@@ -83,10 +81,10 @@ ISR(PCINT0_vect)
 
 static void button_init(void)
 {
-    clr_bit(DDRB, DDB4);          /* PORTB4 as input */
-    set_bit(PORTB, PORTB4);       /* enable pull-up */
-    set_bit(PCICR, PCIE0);        /* enable Pin Change 0 interrupt */
-    set_bit(PCMSK0, PCINT4);      /* PORTB4 is also PCINT4 */
+    clr_bit(DDRB, DDB4);        /* PORTB4 as input */
+    set_bit(PORTB, PORTB4);     /* enable pull-up */
+    set_bit(PCICR, PCIE0);      /* enable Pin Change 0 interrupt */
+    set_bit(PCMSK0, PCINT4);    /* PORTB4 is also PCINT4 */
 }
 
 int main(void)
