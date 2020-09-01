@@ -1,13 +1,19 @@
 %.o: %.c
 	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o $@ $<
 
-%avr: %o
-	avr-gcc -mmcu=atmega328p $< -o $@
+%elf: %o
+	avr-gcc -mmcu=atmega328p -o $@ $<
 
-%.hex: %.avr
+%.hex: %.elf
 	avr-objcopy -O ihex $< $@
 
-TARGETS = led.hex timeswitch.hex
+%.lst: %.elf
+	avr-objdump -d $< > $@
+
+%.s: %.c
+	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -S $<
+
+TARGETS = $(patsubst %.c,%.hex,$(wildcard *.c))
 
 all: $(TARGETS)
 
@@ -18,4 +24,4 @@ com:
 	picocom /dev/ttyACM0
 
 clean:
-	rm -f $(TARGETS) *.o *.avr
+	rm -f $(TARGETS) *.o *.elf

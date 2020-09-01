@@ -8,27 +8,30 @@
 #define T1_TICK_US (T1_PRESCALER/(F_CPU/1000000UL)) /* 64us @ 16MHz */
 #define T1_MAX_US (T1_TICK_US * T1_MAX) /* ~4.2s @ 16MHz */
 
+#define set_bit(VAR, BIT) (VAR |= _BV(BIT))
+#define clr_bit(VAR, BIT) (VAR &= ~_BV(BIT))
+
 static void led_on(void)
 {
-    PORTB |= _BV(PORTB5);
+    set_bit(PORTB, PORTB5);
 }
 
 static void led_off(void)
 {
-    PORTB &= ~_BV(PORTB5);
+    clr_bit(PORTB, PORTB5);
 }
 
 static void led_init(void)
 {
-    DDRB |= _BV(DDB5);          /* PORTB5 as output */
+    set_bit(DDRB, DDB5);          /* PORTB5 as output */
     led_off();
 }
 
 static void timer_stop(void)
 {
     TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12)); /* stop timer clock */
-    TIMSK1 &= ~_BV(TOIE1);      /* disable interrupt */
-    TIFR1 |= _BV(TOV1);         /* clear interrupt flag */
+    clr_bit(TIMSK1, TOIE1);      /* disable interrupt */
+    set_bit(TIFR1, TOV1);         /* clear interrupt flag */
 }
 
 static void timer_init(void)
@@ -52,7 +55,7 @@ static void timer_start(unsigned long us)
     }
     TCNT1 = T1_MAX - ticks;     /* overflow in ticks*1024 clock cycles */
 
-    TIMSK1 |= _BV(TOIE1);       /* enable overflow interrupt */
+    set_bit(TIMSK1, TOIE1);       /* enable overflow interrupt */
     /* start timer clock */
     TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
     TCCR1B |= _BV(CS10) | _BV(CS12);    /* prescaler: 1024 */
@@ -80,10 +83,10 @@ ISR(PCINT0_vect)
 
 static void button_init(void)
 {
-    DDRB &= ~_BV(DDB4);         /* PORTB4 as input */
-    PORTB |= _BV(PORTB4);       /* enable pull-up */
-    PCICR |= _BV(PCIE0);        /* enable Pin Change 0 interrupt */
-    PCMSK0 |= _BV(PCINT4);      /* PORTB4 is also PCINT4 */
+    clr_bit(DDRB, DDB4);          /* PORTB4 as input */
+    set_bit(PORTB, PORTB4);       /* enable pull-up */
+    set_bit(PCICR, PCIE0);        /* enable Pin Change 0 interrupt */
+    set_bit(PCMSK0, PCINT4);      /* PORTB4 is also PCINT4 */
 }
 
 int main(void)
