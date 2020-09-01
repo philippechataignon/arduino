@@ -1,7 +1,9 @@
-void setup() {
-  Serial.begin(9600);
+void setup()
+{
+    Serial.begin(9600);
 }
 
-void loop() {
-  Serial.println("Coucou");
+void loop()
+{
+    Serial.println("Coucou");
 }

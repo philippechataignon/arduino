@@ -41,7 +41,7 @@ void send_value(boolean boolarray[])
     digitalWrite(LOCK, HIGH);
 }
 
-boolean val[NUM_REG] = {0};
+boolean val[NUM_REG] = { 0 };
 
 void setup()
 {

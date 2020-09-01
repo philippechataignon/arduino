@@ -14,7 +14,7 @@ void intr()
 void setup()
 {
     pinMode(13, OUTPUT);
-    pinMode(2, INPUT); // INT0 = pin 2 = PD2
+    pinMode(2, INPUT);          // INT0 = pin 2 = PD2
     attachInterrupt(0, intr, FALLING);
     Serial.begin(9600);
 }
@@ -24,4 +24,3 @@ void loop()
     Serial.println("Bip");
     delay(1000);
 }
-

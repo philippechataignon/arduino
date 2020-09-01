@@ -4,13 +4,15 @@
 #define PAUSEON 500
 #define PAUSEOFF 500
 
-void setup() { 
+void setup()
+{
     Serial.begin(9600);
     pinMode(LEDPIN, OUTPUT);
     pinMode(BUTPIN, INPUT_PULLUP);
-} 
+}
 
-void loop() { 
+void loop()
+{
     while (digitalRead(BUTPIN) == HIGH)
         delay(10);
     Serial.println("on");

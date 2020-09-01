@@ -3,11 +3,13 @@
 #define PAUSEON 500
 #define PAUSEOFF 500
 
-void setup() { 
+void setup()
+{
     pinMode(LEDPIN, OUTPUT);
-} 
+}
 
-void loop() { 
+void loop()
+{
     digitalWrite(LEDPIN, LOW);
     delay(PAUSEOFF);
     digitalWrite(LEDPIN, HIGH);
