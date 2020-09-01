@@ -1,8 +1,11 @@
+CC=avr-gcc -mmcu=atmega328p -DF_CPU=16000000UL
+CCFLAGS=-Os 
+
 %.o: %.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o $@ $<
+	$(CC) $(CCFLAGS) -c -o $@ $<
 
 %elf: %o
-	avr-gcc -mmcu=atmega328p -o $@ $<
+	$(CC) -o $@ $<
 
 %.hex: %.elf
 	avr-objcopy -O ihex $< $@
@@ -11,7 +14,7 @@
 	avr-objdump -d $< > $@
 
 %.s: %.c
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -S $<
+	$(CC) $(CCFLAGS) -c -S $<
 
 TARGETS = $(patsubst %.c,%.hex,$(wildcard *.c))
 
