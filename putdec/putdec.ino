@@ -1,9 +1,10 @@
-void putdec( short int n )
+void putdec(short int n, char buff[])
 {
     unsigned char d4, d3, d2, d1, d0, q;
+    char* p = buff;
 
     if (n < 0) {
-        putchar( '-' );
+        *p++ = '-';
         n = -n;
     }
 
@@ -27,15 +28,21 @@ void putdec( short int n )
     d4 = (d3 * 0x1A) >> 8;
     d3 = d3 - 10*d4;
 
-    putchar( d4 + '0' );
-    putchar( d3 + '0' );
-    putchar( d2 + '0' );
-    putchar( d1 + '0' );
-    putchar( d0 + '0' );
+    *p++ = d4 + '0';
+    *p++ = d3 + '0';
+    *p++ = d2 + '0';
+    *p++ = d1 + '0';
+    *p++ = d0 + '0';
 }
 
-int main() {
-    int i = 12345;
-    putdec(i);
-    return 0;
+char buffer[8] = {0};
+int i = 12345;
+
+void setup() {
+    Serial.begin(9600);
+    putdec(i, buffer);
+    Serial.println(buffer);
 }
+
+void loop()
+{}
