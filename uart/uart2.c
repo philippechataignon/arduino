@@ -1,10 +1,11 @@
+// Send Hello! over serial every second
+
 #ifndef F_CPU
 #define F_CPU 16000000UL
 #endif
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <stdbool.h>
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
 
@@ -29,7 +30,7 @@ void usartSendStr(uint8_t str[])
     }
 }
 
-bool usartDataAvailable()
+int usartDataAvailable()
 {
     return UCSR0A & _BV(RXC0);
 }

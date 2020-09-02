@@ -1,3 +1,6 @@
+// Receive with interrupt
+// Send next charecter
+
 #ifndef F_CPU
 #define F_CPU 16000000UL
 #endif
@@ -38,9 +41,9 @@ ISR(USART_RX_vect)
     uint8_t Temp;
     //Store data to temp
     Temp=UDR0;
-    Temp++;//increment
     //send received data back
     // no need to wait for empty send buffer
+    Temp++;//increment
     UDR0=Temp;
 }
 
@@ -51,6 +54,5 @@ int main(void)
     sei();
     while(1)
         sleep_mode();
-    //nothing here interrupts are working
     return 0;
 }

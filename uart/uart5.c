@@ -2,6 +2,7 @@
 #define F_CPU 16000000UL
 #endif
 
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
@@ -9,12 +10,14 @@
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
 
+#define LIMIT 127U
+
 uint8_t rbuff[256] = {0};
 uint8_t wbuff[256] = {0};
-uint8_t n_rbuff = 0;
-uint8_t n_wbuff = 0;
-uint8_t s_wbuff = 0;
-
+uint8_t volatile h_rbuff = 0;
+uint8_t volatile t_rbuff = 0;
+uint8_t volatile h_wbuff = 0;
+uint8_t volatile t_wbuff = 0;
 
 void usart_init(uint32_t baudRate)
 {
@@ -26,11 +29,14 @@ void usart_init(uint32_t baudRate)
 
 void send_byte(uint8_t ch)
 {
-    cli();
-    wbuff[n_wbuff++] = ch;
+    wbuff[h_wbuff++] = ch;
+    // if buffer full
+    if (h_wbuff == t_wbuff - 1) {
+        // wait until empty
+        while (h_wbuff != t_wbuff) {};
+    }
     // UDR intr on
     UCSR0B |= _BV(UDRIE0);
-    sei();
 }
 
 void send_str(uint8_t str[])
@@ -43,15 +49,13 @@ void send_str(uint8_t str[])
 ISR(USART_RX_vect)
 {
     uint8_t ch = UDR0;
-    rbuff[n_rbuff++] = ch;
-    if (n_rbuff > 255)
-        n_rbuff = 0;
+    rbuff[h_rbuff++] = ch;
 }
 
 ISR(USART_UDRE_vect)
 {
-    if (n_wbuff != s_wbuff) {
-        UDR0 = wbuff[s_wbuff++];
+    if (h_wbuff != t_wbuff) {
+        UDR0 = wbuff[t_wbuff++];
     } else {
         // UDR intr off
         UCSR0B &= ~_BV(UDRIE0);
@@ -64,8 +68,12 @@ int main(void)
     usart_init(9600);
     sei();
     while(1) {
-        send_str("Hello!\r\n");
-        _delay_ms(1000);
+        char output[16];
+        for (uint8_t i=0;; i++) {
+            itoa(i, output, 10);
+            send_str(output);
+            send_str("\r\n");
+        }
     }
     return 0;
 }

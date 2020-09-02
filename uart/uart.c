@@ -4,7 +4,6 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <stdbool.h>
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
 
@@ -22,7 +21,7 @@ void usartSendByte(uint8_t data)
     UDR0 = data;
 }
 
-bool usartDataAvailable()
+int usartDataAvailable()
 {
     return UCSR0A & _BV(RXC0);
 }
