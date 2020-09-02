@@ -5,10 +5,12 @@ import sys
 import time
 import unicodedata
 
-def test_xonxoff(ser):
+def test_xonxoff(ser, verbose):
     read = ser.read()
     # XOFF
     if read == b'\x13':
+        if (verbose):
+            print("> Wait XON")
         # Wait XON
         while True:
             read = ser.read()
@@ -25,7 +27,7 @@ def main():
         for line in sys.stdin:
             if not args.latin1:
                 line = unicodedata.normalize("NFC", line).encode("latin1", "ignore")
-            test_xonxoff(ser)
+            test_xonxoff(ser, args.verbose)
             if args.verbose:
                 print(line)
             ser.write(line)

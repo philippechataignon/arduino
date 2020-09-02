@@ -43,7 +43,7 @@ uint8_t usartGetRxByte()
 int main()
 {
     usartInit(9600);
-    uint8_t* str = "Hello!\r\n";
+    uint8_t str[] = "Hello!\r\n";
 
     // receives a char and sends it every second
     while (1) {

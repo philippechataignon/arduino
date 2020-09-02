@@ -26,19 +26,15 @@ int usartDataAvailable()
     return UCSR0A & _BV(RXC0);
 }
 
-uint8_t usartGetRxByte()
-{
-    return UDR0;
-}
-
 int main()
 {
     usartInit(9600);
-    uint8_t data;
+    uint8_t data = 0;
     // receives a char and sends it every second
     while (1) {
-        if (usartDataAvailable())
-            data = usartGetRxByte();
+        if (usartDataAvailable()) {
+            data = UDR0;
+        }
         usartSendByte(data);
         _delay_ms(1000);
     }

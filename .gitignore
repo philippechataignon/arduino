@@ -6,3 +6,4 @@ build-*/
 *.cof
 *.lst
 *.avr
+temp/

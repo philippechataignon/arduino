@@ -68,11 +68,11 @@ int main(void)
     usart_init(9600);
     sei();
     while(1) {
-        char output[16];
+        uint8_t output[16];
         for (uint8_t i=0;; i++) {
-            itoa(i, output, 10);
+            itoa(i, (char*) output, 10);
             send_str(output);
-            send_str("\r\n");
+            send_str((uint8_t*)"\r\n");
         }
     }
     return 0;

@@ -12,15 +12,12 @@
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
 
-#define LIMIT 32
+#define LIMIT 64
 #define LIMIT_LOW 8
 
 uint8_t rbuff[256] = {0};
-uint8_t wbuff[256] = {0};
 uint8_t volatile h_rbuff = 0;
 uint8_t volatile t_rbuff = 0;
-uint8_t volatile h_wbuff = 0;
-uint8_t volatile t_wbuff = 0;
 
 void usart_init(uint32_t baudRate)
 {
@@ -79,7 +76,6 @@ int main(void)
     send_byte(0x11);
     while(1) {
         read_byte();
-        uint8_t delta = h_rbuff - t_rbuff;
     }
     return 0;
 }
