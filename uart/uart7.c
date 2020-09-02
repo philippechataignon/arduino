@@ -9,6 +9,7 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <util/delay.h>
+#include "binary.h"
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
 
@@ -33,11 +34,13 @@ void usart_init(uint32_t baudRate)
 void send_byte(uint8_t ch)
 {
     wbuff[h_wbuff++] = ch;
-    // if buffer full
-    if (h_wbuff == t_wbuff - 1) {
-        // wait until empty
-        while (h_wbuff != t_wbuff) {};
-    }
+    // uint8_t volatile delta = h_wbuff - t_wbuff;
+    // if (delta > LIMIT) {
+    //     // wait until under LIMIT_LOW
+    //     while (delta >= LIMIT_LOW) {
+    //         delta = h_wbuff - t_wbuff;
+    //     }
+    // }
     // UDR intr on
     UCSR0B |= _BV(UDRIE0);
 }
@@ -53,21 +56,41 @@ void use_char(uint8_t ch) {
     _delay_ms(75);
 }
 
-void read_byte() {
-    if (h_rbuff != t_rbuff) {
+int inline is_byte_readable() {
+    return h_rbuff != t_rbuff;
+}
+
+int inline is_byte_writable() {
+    return h_wbuff != t_wbuff;
+}
+
+static void timer_init(void)
+{
+    /* normal mode */
+    clr_bit(TCCR1A, WGM10);
+    clr_bit(TCCR1A, WGM11);
+    set_bit(TIFR1, TOV1);
+    TCNT1 =  0;                 /* overflow in ticks*1024 clock cycles */
+    TIMSK1 = B00000001;         /* set the Timer Overflow Interrupt Enable bit */
+    TCCR1B = B00000101;         /* prescaler: 1024 */
+}
+
+ISR(TIMER1_OVF_vect)
+{
+    if (is_byte_readable()) {
         uint8_t ch = rbuff[t_rbuff++];
-        uint8_t delta = h_rbuff - t_rbuff;
-        if (delta < LIMIT_LOW) {
-            // send XON
-            send_byte(0x11);
-        }
         use_char(ch);
+    }
+    uint8_t delta = h_rbuff - t_rbuff;
+    if (delta < LIMIT_LOW) {
+        // send XON
+        send_byte(0x11);
     }
 }
 
 ISR(USART_UDRE_vect)
 {
-    if (h_wbuff != t_wbuff) {
+    if (is_byte_writable()) {
         UDR0 = wbuff[t_wbuff++];
     } else {
         // UDR intr off
@@ -90,11 +113,12 @@ int main(void)
 {
     set_sleep_mode(SLEEP_MODE_IDLE);
     usart_init(9600);
+    timer_init();
     sei();
     // send XON
     send_byte(0x11);
     while(1) {
-        read_byte();
+        sleep_mode();
     }
     return 0;
 }

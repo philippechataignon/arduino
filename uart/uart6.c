@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sleep.h>
 #include <util/delay.h>
 
 #define BAUD_PRESCALE(fcpu,br) ((fcpu / 16 / br) - 1)
@@ -69,13 +68,17 @@ ISR(USART_RX_vect)
 
 int main(void)
 {
-    set_sleep_mode(SLEEP_MODE_IDLE);
     usart_init(9600);
+    DDRB |= _BV(DDB5);
+    /* set pin 5 low to turn led off */
+    PORTB &= ~_BV(PORTB5);
+
     sei();
     // send XON
     send_byte(0x11);
     while(1) {
         read_byte();
+        _delay_ms(10);
     }
     return 0;
 }

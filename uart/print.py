@@ -23,7 +23,7 @@ def main():
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
     parser.add_argument("-l", "--latin1", help="input is encoded in latin1 (default UTF8)", action="store_true")
     args = parser.parse_args()
-    with serial.Serial(args.port, 9600, timeout=1) as ser:
+    with serial.Serial(args.port, 9600, timeout=0.1) as ser:
         for line in sys.stdin:
             if not args.latin1:
                 line = unicodedata.normalize("NFC", line).encode("latin1", "ignore")
