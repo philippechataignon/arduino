@@ -1,4 +1,4 @@
-// bffer receive and xon/xoff
+// uart with buffer receive and xon/xoff
 
 #ifndef F_CPU
 #define F_CPU 16000000UL
@@ -59,7 +59,6 @@ static void timer_stop()
     set_bit(TIFR1, TOV1);       /* clear interrupt flag */
 }
 
-
 /* at 16MHz, 1 tick = 1s / fcpu * div = 1000000 / 16000000 * 1024 = 64 ms */
 /* INTR in value * 64 ms */
 static void timer_start(int value)
@@ -91,6 +90,7 @@ ISR(TIMER1_OVF_vect)
 
 ISR(USART_RX_vect)
 {
+    cli();
     uint8_t ch = UDR0;
     receive.buff[receive.head++] = ch;
     uint8_t delta = receive.head - receive.tail;
@@ -98,6 +98,7 @@ ISR(USART_RX_vect)
         // send XOFF
         send_byte(0x13);
     }
+    sei();
 }
 
 int main(void)
