@@ -63,12 +63,14 @@ static void timer_stop()
 /* INTR in value * 64 ms */
 static void timer_start(int value)
 {
+    cli(); /* no interrupt because TCNT1 is 16 bits = 2 cycles to write */
     clr_bit(TCCR1A, WGM10);
     clr_bit(TCCR1A, WGM11);
     set_bit(TIFR1, TOV1);
     TCNT1 =  0xFFFF - (value & 0xFFFF);    /* overflow in value * 64 us*/
     TIMSK1 = B00000001;         /* set the Timer Overflow Interrupt Enable bit */
     TCCR1B = B00000101;         /* prescaler: 1024 */
+    sei();
 }
 
 ISR(TIMER1_OVF_vect)
