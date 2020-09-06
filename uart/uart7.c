@@ -16,18 +16,16 @@
 #define LIMIT 64
 #define LIMIT_LOW 8
 
-/* 75 ms = 1172 * 64 µs */
+/* 75 ms = 1172 * 64 us */
 #define DELAY 1172
-
-uint8_t rbuff[256] = {0};
-uint8_t volatile h_rbuff = 0;
-uint8_t volatile t_rbuff = 0;
 
 typedef struct {
     uint8_t buff[256];
     uint8_t volatile head;
     uint8_t volatile tail;
 } buffer;
+
+buffer receive = {{0}, 0, 0};
 
 void usart_init(uint32_t baudRate)
 {
@@ -62,12 +60,14 @@ static void timer_stop()
 }
 
 
+/* at 16MHz, 1 tick = 1s / fcpu * div = 1000000 / 16000000 * 1024 = 64 ms */
+/* INTR in value * 64 ms */
 static void timer_start(int value)
 {
     clr_bit(TCCR1A, WGM10);
     clr_bit(TCCR1A, WGM11);
     set_bit(TIFR1, TOV1);
-    TCNT1 =  0xFFFF - (value & 0xFFFF);    /* overflow in value * 64 µs */
+    TCNT1 =  0xFFFF - (value & 0xFFFF);    /* overflow in value * 64 us*/
     TIMSK1 = B00000001;         /* set the Timer Overflow Interrupt Enable bit */
     TCCR1B = B00000101;         /* prescaler: 1024 */
 }
@@ -76,9 +76,9 @@ ISR(TIMER1_OVF_vect)
 {
     cli();
     timer_stop();
-    if (h_rbuff != t_rbuff) {
-        uint8_t ch = rbuff[t_rbuff++];
-        uint8_t delta = h_rbuff - t_rbuff;
+    if (receive.head != receive.tail) {
+        uint8_t ch = receive.buff[receive.tail++];
+        uint8_t delta = receive.head - receive.tail;
         if (delta < LIMIT_LOW) {
             // send XON
             send_byte(0x11);
@@ -92,8 +92,8 @@ ISR(TIMER1_OVF_vect)
 ISR(USART_RX_vect)
 {
     uint8_t ch = UDR0;
-    rbuff[h_rbuff++] = ch;
-    uint8_t delta = h_rbuff - t_rbuff;
+    receive.buff[receive.head++] = ch;
+    uint8_t delta = receive.head - receive.tail;
     if (delta > LIMIT) {
         // send XOFF
         send_byte(0x13);
@@ -103,11 +103,12 @@ ISR(USART_RX_vect)
 int main(void)
 {
     usart_init(9600);
+    timer_start(DELAY);
+
     /* set pin 5 low to turn led off */
     DDRB |= _BV(DDB5);
     PORTB &= ~_BV(PORTB5);
-    usart_init(9600);
-    timer_start(DELAY);
+
     sei();
     // send XON
     send_byte(0x11);
