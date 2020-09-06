@@ -1,4 +1,4 @@
-// buffer receive and xon/xoff
+// bffer receive and xon/xoff
 
 #ifndef F_CPU
 #define F_CPU 16000000UL
@@ -16,33 +16,31 @@
 #define LIMIT 64
 #define LIMIT_LOW 8
 
+/* 75 ms = 1172 * 64 µs */
+#define DELAY 1172
+
 uint8_t rbuff[256] = {0};
 uint8_t volatile h_rbuff = 0;
 uint8_t volatile t_rbuff = 0;
-uint8_t wbuff[256] = {0};
-uint8_t volatile h_wbuff = 0;
-uint8_t volatile t_wbuff = 0;
+
+typedef struct {
+    uint8_t buff[256];
+    uint8_t volatile head;
+    uint8_t volatile tail;
+} buffer;
 
 void usart_init(uint32_t baudRate)
 {
     UBRR0L = BAUD_PRESCALE(F_CPU, baudRate) & 0xFF;
     UBRR0H = BAUD_PRESCALE(F_CPU, baudRate) >> 8;
-    UCSR0B = _BV(TXEN0) | _BV(RXEN0) | _BV(RXCIE0) | _BV(UDRIE0);
+    UCSR0B = _BV(TXEN0) | _BV(RXEN0) | _BV(RXCIE0);
     UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
 }
 
 void send_byte(uint8_t ch)
 {
-    wbuff[h_wbuff++] = ch;
-    // uint8_t volatile delta = h_wbuff - t_wbuff;
-    // if (delta > LIMIT) {
-    //     // wait until under LIMIT_LOW
-    //     while (delta >= LIMIT_LOW) {
-    //         delta = h_wbuff - t_wbuff;
-    //     }
-    // }
-    // UDR intr on
-    UCSR0B |= _BV(UDRIE0);
+    while (!(UCSR0A & _BV(UDRE0)));
+    UDR0 = ch;
 }
 
 void send_str(uint8_t str[])
@@ -53,49 +51,42 @@ void send_str(uint8_t str[])
 }
 
 void use_char(uint8_t ch) {
-    _delay_ms(75);
+    // _delay_ms(50);
 }
 
-int inline is_byte_readable() {
-    return h_rbuff != t_rbuff;
-}
-
-int inline is_byte_writable() {
-    return h_wbuff != t_wbuff;
-}
-
-static void timer_init(void)
+static void timer_stop()
 {
-    /* normal mode */
+    TCCR1B = B00000000;         /* stop timer clock */
+    clr_bit(TIMSK1, TOIE1);     /* disable interrupt */
+    set_bit(TIFR1, TOV1);       /* clear interrupt flag */
+}
+
+
+static void timer_start(int value)
+{
     clr_bit(TCCR1A, WGM10);
     clr_bit(TCCR1A, WGM11);
     set_bit(TIFR1, TOV1);
-    TCNT1 =  0;                 /* overflow in ticks*1024 clock cycles */
+    TCNT1 =  0xFFFF - (value & 0xFFFF);    /* overflow in value * 64 µs */
     TIMSK1 = B00000001;         /* set the Timer Overflow Interrupt Enable bit */
     TCCR1B = B00000101;         /* prescaler: 1024 */
 }
 
 ISR(TIMER1_OVF_vect)
 {
-    if (is_byte_readable()) {
+    cli();
+    timer_stop();
+    if (h_rbuff != t_rbuff) {
         uint8_t ch = rbuff[t_rbuff++];
+        uint8_t delta = h_rbuff - t_rbuff;
+        if (delta < LIMIT_LOW) {
+            // send XON
+            send_byte(0x11);
+        }
         use_char(ch);
     }
-    uint8_t delta = h_rbuff - t_rbuff;
-    if (delta < LIMIT_LOW) {
-        // send XON
-        send_byte(0x11);
-    }
-}
-
-ISR(USART_UDRE_vect)
-{
-    if (is_byte_writable()) {
-        UDR0 = wbuff[t_wbuff++];
-    } else {
-        // UDR intr off
-        UCSR0B &= ~_BV(UDRIE0);
-    }
+    timer_start(DELAY);
+    sei();
 }
 
 ISR(USART_RX_vect)
@@ -111,9 +102,12 @@ ISR(USART_RX_vect)
 
 int main(void)
 {
-    set_sleep_mode(SLEEP_MODE_IDLE);
     usart_init(9600);
-    timer_init();
+    /* set pin 5 low to turn led off */
+    DDRB |= _BV(DDB5);
+    PORTB &= ~_BV(PORTB5);
+    usart_init(9600);
+    timer_start(DELAY);
     sei();
     // send XON
     send_byte(0x11);
@@ -122,4 +116,3 @@ int main(void)
     }
     return 0;
 }
-
