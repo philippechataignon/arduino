@@ -27,6 +27,8 @@ typedef struct {
 
 buffer receive = {{0}, 0, 0};
 
+uint8_t volatile is_on = 0;
+
 void usart_init(uint32_t baudRate)
 {
     UBRR0L = BAUD_PRESCALE(F_CPU, baudRate) & 0xFF;
@@ -50,6 +52,24 @@ void send_str(uint8_t str[])
 
 void use_char(uint8_t ch) {
     // _delay_ms(50);
+}
+
+void xon()
+{
+    // send XON
+    if (!is_on) {
+        send_byte(0x11);
+    }
+    is_on = 1;
+}
+
+void xoff()
+{
+    // send XOFF
+    if (is_on) {
+        send_byte(0x13);
+    }
+    is_on = 0;
 }
 
 static void timer_stop()
@@ -81,8 +101,7 @@ ISR(TIMER1_OVF_vect)
         uint8_t ch = receive.buff[receive.tail++];
         uint8_t delta = receive.head - receive.tail;
         if (delta < LIMIT_LOW) {
-            // send XON
-            send_byte(0x11);
+            xon();
         }
         use_char(ch);
     }
@@ -97,8 +116,7 @@ ISR(USART_RX_vect)
     receive.buff[receive.head++] = ch;
     uint8_t delta = receive.head - receive.tail;
     if (delta > LIMIT) {
-        // send XOFF
-        send_byte(0x13);
+        xoff();
     }
     sei();
 }
@@ -113,8 +131,8 @@ int main(void)
     PORTB &= ~_BV(PORTB5);
 
     sei();
-    // send XON
-    send_byte(0x11);
+    xon();
+
     while(1) {
         sleep_mode();
     }
