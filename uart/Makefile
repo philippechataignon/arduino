@@ -31,4 +31,4 @@ com:
 	picocom /dev/ttyACM0
 
 clean:
-	rm -f $(TARGETS) *.o *.elf
+	rm -f $(TARGETS) *.o *.elf *.s
