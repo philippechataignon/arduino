@@ -31,14 +31,15 @@ void setup()
 
 void loop()
 {
+    // first number
     for (int k = 0; k < 13; k++) {
+        // delay loop ifor refreshing display
         for (int d = 0; d < 128; d++) {
             int n = k;
-            for (int i = 1; i < 8; i++) {
-                digitalWrite(i, LOW);
-            }
+
             digitalWrite(10, LOW);
             byte m = mask[n];
+            // send active segments
             for (int i = 0; i < 7; i++) {
                 digitalWrite(i + 1, bitRead(m, i));
             }
