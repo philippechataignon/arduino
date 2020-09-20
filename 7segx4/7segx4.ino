@@ -31,68 +31,43 @@ void setup()
 
 void loop()
 {
-    for (int i = 1; i < 8; i++) {
-        digitalWrite(i, LOW);
+    for (int k = 0; k < 13; k++) {
+        for (int d = 0; d < 128; d++) {
+            int n = k;
+            for (int i = 1; i < 8; i++) {
+                digitalWrite(i, LOW);
+            }
+            digitalWrite(10, LOW);
+            byte m = mask[n];
+            for (int i = 0; i < 7; i++) {
+                digitalWrite(i + 1, bitRead(m, i));
+            }
+            delay(1);
+            digitalWrite(10, HIGH);
+            digitalWrite(11, LOW);
+            n++;
+            m = mask[n];
+            for (int i = 0; i < 7; i++) {
+                digitalWrite(i + 1, bitRead(m, i));
+            }
+            delay(1);
+            digitalWrite(11, HIGH);
+            digitalWrite(12, LOW);
+            n++;
+            m = mask[n];
+            for (int i = 0; i < 7; i++) {
+                digitalWrite(i + 1, bitRead(m, i));
+            }
+            delay(1);
+            digitalWrite(12, HIGH);
+            digitalWrite(13, LOW);
+            n++;
+            m = mask[n];
+            for (int i = 0; i < 7; i++) {
+                digitalWrite(i + 1, bitRead(m, i));
+            }
+            delay(1);
+            digitalWrite(13, HIGH);
+        }
     }
-    int n = 7;
-    digitalWrite(10, LOW);
-    byte m = mask[n];
-    for (int i = 0; i < 7; i++) {
-        digitalWrite(i + 1, bitRead(m, i));
-    }
-    delay(1);
-    digitalWrite(10, HIGH);
-    digitalWrite(11, LOW);
-    n++;
-    m = mask[n];
-    for (int i = 0; i < 7; i++) {
-        digitalWrite(i + 1, bitRead(m, i));
-    }
-    delay(1);
-    digitalWrite(11, HIGH);
-    digitalWrite(12, LOW);
-    n++;
-    m = mask[n];
-    for (int i = 0; i < 7; i++) {
-        digitalWrite(i + 1, bitRead(m, i));
-    }
-    delay(1);
-    digitalWrite(12, HIGH);
-    digitalWrite(13, LOW);
-    n++;
-    m = mask[n];
-    for (int i = 0; i < 7; i++) {
-        digitalWrite(i + 1, bitRead(m, i));
-    }
-    delay(1);
-    digitalWrite(13, HIGH);
-//#        n++;
-//#        digitalWrite(11, HIGH);
-//#        delay(10);
-//#        m = mask[n];
-//#        for (int i = 0; i < 7; i++) {
-//#            digitalWrite(i + 1, bitRead(m, i));
-//#        }
-//#        delay(10);
-//#        digitalWrite(11, LOW);
-//#        n++;
-//#        digitalWrite(12, HIGH);
-//#        delay(10);
-//#        m = mask[n];
-//#        for (int i = 0; i < 7; i++) {
-//#            digitalWrite(i + 1, bitRead(m, i));
-//#        }
-//#        delay(10);
-//#        digitalWrite(12, LOW);
-//#        n++;
-//#        digitalWrite(13, HIGH);
-//#        delay(10);
-//#        m = mask[n];
-//#        for (int i = 0; i < 7; i++) {
-//#            digitalWrite(i + 1, bitRead(m, i));
-//#        }
-//#        delay(10);
-//#        digitalWrite(13, LOW);
-//#        delay(PAUSE);
-//#    }
 }
