@@ -32,43 +32,35 @@ void setup()
 void loop()
 {
     // first number
-    for (int k = 0; k < 13; k++) {
-        // delay loop ifor refreshing display
-        for (int d = 0; d < 128; d++) {
-            int n = k;
-
-            digitalWrite(10, LOW);
-            byte m = mask[n];
-            // send active segments
-            for (int i = 0; i < 7; i++) {
-                digitalWrite(i + 1, bitRead(m, i));
-            }
-            delay(1);
-            digitalWrite(10, HIGH);
-            digitalWrite(11, LOW);
-            n++;
-            m = mask[n];
-            for (int i = 0; i < 7; i++) {
-                digitalWrite(i + 1, bitRead(m, i));
-            }
-            delay(1);
-            digitalWrite(11, HIGH);
-            digitalWrite(12, LOW);
-            n++;
-            m = mask[n];
-            for (int i = 0; i < 7; i++) {
-                digitalWrite(i + 1, bitRead(m, i));
-            }
-            delay(1);
-            digitalWrite(12, HIGH);
-            digitalWrite(13, LOW);
-            n++;
-            m = mask[n];
-            for (int i = 0; i < 7; i++) {
-                digitalWrite(i + 1, bitRead(m, i));
-            }
-            delay(1);
-            digitalWrite(13, HIGH);
+    for (int n = 0; n <= 0xFFFF; n++) {
+        digitalWrite(10, LOW);
+        byte m = mask[n & 0x000f];
+        // send active segments
+        for (int i = 0; i < 7; i++) {
+            digitalWrite(i + 1, bitRead(m, i));
         }
+        delay(1);
+        digitalWrite(10, HIGH);
+        m = mask[(n >> 4) & 0x000f];
+        digitalWrite(11, LOW);
+        for (int i = 0; i < 7; i++) {
+            digitalWrite(i + 1, bitRead(m, i));
+        }
+        delay(1);
+        digitalWrite(11, HIGH);
+        m = mask[(n >> 8) & 0x000f];
+        digitalWrite(12, LOW);
+        for (int i = 0; i < 7; i++) {
+            digitalWrite(i + 1, bitRead(m, i));
+        }
+        delay(1);
+        digitalWrite(12, HIGH);
+        m = mask[(n >> 12) & 0x000f];
+        digitalWrite(13, LOW);
+        for (int i = 0; i < 7; i++) {
+            digitalWrite(i + 1, bitRead(m, i));
+        }
+        delay(1);
+        digitalWrite(13, HIGH);
     }
 }
