@@ -1,4 +1,4 @@
-#define PAUSE 1000
+#define PAUSE 4096
 
 byte mask[] = {
     0x3F,
@@ -24,6 +24,7 @@ void setup()
     for (int i = 1; i < 14; i++) {
         pinMode(i, OUTPUT);
     }
+    // every digit off
     for (int i = 10; i < 14; i++) {
         digitalWrite(i, HIGH);
     }
@@ -33,34 +34,42 @@ void loop()
 {
     // first number
     for (int n = 0; n <= 0xFFFF; n++) {
+        // digit 1 on
         digitalWrite(10, LOW);
         byte m = mask[n & 0x000f];
         // send active segments
         for (int i = 0; i < 7; i++) {
             digitalWrite(i + 1, bitRead(m, i));
         }
-        delay(1);
-        digitalWrite(10, HIGH);
+        delayMicroseconds(PAUSE);
         m = mask[(n >> 4) & 0x000f];
+        // digit 1 off
+        digitalWrite(10, HIGH);
+        // digit 2 on
         digitalWrite(11, LOW);
         for (int i = 0; i < 7; i++) {
             digitalWrite(i + 1, bitRead(m, i));
         }
-        delay(1);
-        digitalWrite(11, HIGH);
+        delayMicroseconds(PAUSE);
         m = mask[(n >> 8) & 0x000f];
+        // digit 2 off
+        digitalWrite(11, HIGH);
+        // digit 3 on
         digitalWrite(12, LOW);
         for (int i = 0; i < 7; i++) {
             digitalWrite(i + 1, bitRead(m, i));
         }
-        delay(1);
-        digitalWrite(12, HIGH);
+        delayMicroseconds(PAUSE);
         m = mask[(n >> 12) & 0x000f];
+        // digit 3 off
+        digitalWrite(12, HIGH);
+        // digit 4 on
         digitalWrite(13, LOW);
         for (int i = 0; i < 7; i++) {
             digitalWrite(i + 1, bitRead(m, i));
         }
-        delay(1);
+        delayMicroseconds(PAUSE);
+        // digit 4 off
         digitalWrite(13, HIGH);
     }
 }
