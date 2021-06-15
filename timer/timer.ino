@@ -6,8 +6,8 @@ void setup()
     pinMode(Led, OUTPUT);
     bitClear(TCCR2A, WGM20);    // WGM20 = 0
     bitClear(TCCR2A, WGM21);    // WGM21 = 0 
-    TCCR2B = 0 b00000110;       // Clock / 256 soit 16 micro-s et WGM22 = 0
-    TIFR2 = 0 b00000001;        // TOV2
+    TCCR2B = 0b00000110;       // Clock / 256 soit 16 micro-s et WGM22 = 0
+    TIFR2 = 0b00000001;        // TOV2
     TCNT2 = 256 - 250;          // Chargement du timer à  6
 }
 
