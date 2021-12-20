@@ -1,10 +1,10 @@
-%.hex: %.asm
+%.hex: %.s
 	avra -l $<.lst -fI $<
 	@rm -f *.eep.hex *.obj *.cof
 
-all: $(patsubst %.asm,%.hex,$(wildcard *.asm))
+all: $(patsubst %.s,%.hex,$(wildcard *.s))
 
-upload: ${program}.hex
+upload_%: %.hex
 	avrdude -D -c arduino -p m328p -P /dev/ttyACM0 -b 115200 -U flash:w:$<
 
 com:
@@ -12,5 +12,3 @@ com:
 
 clean:
 	rm -f *.hex *.obj *.cof *.lst
-
-.PHONY: all upload monitor
