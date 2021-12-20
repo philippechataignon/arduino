@@ -1,6 +1,6 @@
 %.hex: %.s
-	avra -l $<.lst -fI $<
-	@rm -f *.eep.hex *.obj *.cof
+	avra -fI -l $(<:.s=.lst) -o "$@" "$<"
+	@rm -f $(<:.s=.eep.hex) $(<:.s=.obj) $(<:.s=.cof) 
 
 all: $(patsubst %.s,%.hex,$(wildcard *.s))
 
